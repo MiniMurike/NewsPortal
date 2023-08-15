@@ -55,7 +55,7 @@ class Post(models.Model):
     rating = models.IntegerField(default=0)
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     # Можно сделать и через булево значение, но вдруг будет больше типов постов?
-    type = models.IntegerField(default=0, choices=CATEGORY_TYPES, unique=True)
+    type = models.IntegerField(default=0, choices=CATEGORY_TYPES)
     date = models.DateTimeField(auto_now_add=True)
 
     post_category = models.ManyToManyField('Category', through='PostCategory')
@@ -71,6 +71,9 @@ class Post(models.Model):
     @property
     def preview(self):
         return f'{self.text[:123]}...'
+
+    def __str__(self):
+        return f'{self.title}: {self.preview}'
 
 
 class PostCategory(models.Model):
