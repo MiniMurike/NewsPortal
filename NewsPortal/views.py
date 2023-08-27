@@ -2,6 +2,9 @@ from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 from .models import Post
 from .forms import PostNewsForm
 from .filters import PostFilter
@@ -46,36 +49,9 @@ class PostSearch(ListView):
 # ------------------------------
 
 
-class PostNewsCreate(CreateView):
-    form_class = PostNewsForm
-    model = Post
-    template_name = 'post_news_create.html'
+class PostNewsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('NewsPortal.add_post',)
 
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 0
-
-        return super().form_valid(form)
-
-
-class PostNewsUpdate(UpdateView):
-    form_class = PostNewsForm
-    model = Post
-    template_name = 'post_news_create.html'
-
-
-class PostNewsDelete(DeleteView):
-    model = Post
-    template_name = 'post_news_delete.html'
-    success_url = reverse_lazy('post_lists')
-
-
-# ------------------------------
-# Взаимодействие со СТАТЬЯМИ
-# ------------------------------
-
-
-class PostArticleCreate(CreateView):
     form_class = PostNewsForm
     model = Post
     template_name = 'post_news_create.html'
@@ -87,7 +63,44 @@ class PostArticleCreate(CreateView):
         return super().form_valid(form)
 
 
-class PostArticleDelete(DeleteView):
+class PostNewsUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = ('NewsPortal.change_post',)
+
+    form_class = PostNewsForm
+    model = Post
+    template_name = 'post_news_create.html'
+
+
+class PostNewsDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = ('NewsPortal.delete_post',)
+
+    model = Post
+    template_name = 'post_news_delete.html'
+    success_url = reverse_lazy('post_lists')
+
+
+# ------------------------------
+# Взаимодействие со СТАТЬЯМИ
+# ------------------------------
+
+
+class PostArticleCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('NewsPortal.add_post',)
+
+    form_class = PostNewsForm
+    model = Post
+    template_name = 'post_news_create.html'
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.type = 0
+
+        return super().form_valid(form)
+
+
+class PostArticleDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = ('NewsPortal.delete_post',)
+
     model = Post
     template_name = 'post_article_delete.html'
     success_url = reverse_lazy('post_lists')

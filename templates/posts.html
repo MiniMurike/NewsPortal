@@ -10,17 +10,50 @@ Posts
 {% block content %}
 <h1>Последние новости:</h1>
 Всего новостей на странице: {{ posts|length }}
+
+{% if perms.NewsPortal.add_post %}
+    <a href="{% url 'post_news_create' %}">Добавить новость</a>
+    <a href="{% url 'post_article_create' %}">Добавить статью</a>
+{% endif %}
+
 <table>
-    <tr>
+    <tr style="font-weight: bold">
         <td>Заголовок</td>
         <td>Дата публикации</td>
         <td>Краткое описание</td>
+        {% if perms.NewsPortal.change_post or perms.NewsPortal.delete_post %}
+            <td>Действия</td>
+        {% endif %}
     </tr>
     {% for post in posts %}
         <tr>
             <td>{{ post.title }}</td>
             <td>{{ post.date|date:'d.M.Y' }}</td>
             <td>{{ post.text|censure|truncatechars:20 }}</td>
+            <td>
+                {# Тип новости: 0 - новость, 1 - статья #}
+                {% if post.type %}
+                {# Вход кода для НОВОСТЕЙ #}
+
+                    {% if perms.NewsPortal.change_post %}
+                        <a href="{% url 'post_news_update' pk=post.id %}">Изменить</a>
+                    {% endif %}
+                    {% if perms.NewsPortal.delete_post %}
+                        <a href="{% url 'post_news_delete' pk=post.id %}">Удалить</a>
+                    {% endif %}
+
+                {% else %}
+                {# Вход кода для СТАТЕЙ #}
+
+                    {% if perms.NewsPortal.change_post %}
+                        <a href="{% url 'post_article_update' pk=post.id %}">Изменить</a>
+                    {% endif %}
+                    {% if perms.NewsPortal.delete_post %}
+                        <a href="{% url 'post_article_delete' pk=post.id %}">Удалить</a>
+                    {% endif %}
+
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
 </table>
