@@ -1,7 +1,7 @@
 from django_filters import (
     FilterSet, DateTimeFilter, ModelMultipleChoiceFilter, ModelChoiceFilter, ChoiceFilter, CharFilter)
 
-from .models import Post, PostCategory, Author, CATEGORY_TYPES
+from .models import Post, Author, CATEGORY_TYPES, Category
 from django.forms import DateTimeInput
 
 
@@ -18,16 +18,14 @@ class PostFilter(FilterSet):
         choices=CATEGORY_TYPES,
         empty_label='Any',
     )
-    category = ModelMultipleChoiceFilter(
+    post_category = ModelMultipleChoiceFilter(
         label='Category',
-        field_name='postcategory',
-        queryset=PostCategory.objects.all(),
+        queryset=Category.objects.all(),
     )
     author = ModelChoiceFilter(
         field_name='author',
         queryset=Author.objects.all(),
         empty_label='Any',
-
     )
 
     class Meta:

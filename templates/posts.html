@@ -9,7 +9,7 @@ Posts
 
 {% block content %}
 <h1>Последние новости:</h1>
-Всего новостей на странице: {{ posts|length }}
+Всего новостей: {{ post_count|length }}, на странице: {{ posts|length }}
 
 {% if perms.NewsPortal.add_post %}
     <a href="{% url 'post_news_create' %}">Добавить новость</a>
@@ -27,7 +27,7 @@ Posts
     </tr>
     {% for post in posts %}
         <tr>
-            <td>{{ post.title }}</td>
+            <td><a href="{% url 'post_detail' pk=post.id %}">{{ post.title }}</a></td>
             <td>{{ post.date|date:'d.M.Y' }}</td>
             <td>{{ post.text|censure|truncatechars:20 }}</td>
             <td>

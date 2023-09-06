@@ -44,7 +44,12 @@ CATEGORY_CATEGORIES = [
 
 
 class Category(models.Model):
-    category = models.CharField(max_length=3, choices=CATEGORY_CATEGORIES, unique=True, default='edu')
+    category = models.CharField(max_length=3, choices=CATEGORY_CATEGORIES, unique=True)
+
+    def __str__(self):
+        for item in CATEGORY_CATEGORIES:
+            if item[0] == self.category:
+                return item[1]
 
 
 CATEGORY_TYPES = [
@@ -76,22 +81,16 @@ class Post(models.Model):
     def preview(self):
         return f'{self.text[:123]}...'
 
-    def __str__(self):
-        return f'{self.title}: {self.preview}'
-
     def get_absolute_url(self):
-        # return reverse('post_detail', args=[str(self.id)])
-        return reverse('post_lists')
+        return f'/allnews/{self.id}'
+
+    def __str__(self):
+        return str(self.title)
 
 
 class PostCategory(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
-
-    def __str__(self):
-        for item in CATEGORY_CATEGORIES:
-            if item[0] == self.category.category:
-                return str(item[1])
 
 
 class Comment(models.Model):

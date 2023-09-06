@@ -24,11 +24,21 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/news/">News</a>
+                            <a class="nav-link" href="/allnews/">News</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/news/search">Search news</a>
+                            <a class="nav-link" href="/allnews/search">Search news</a>
                         </li>
+                        {% if not user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/accounts/login">Login</a>
+                        </li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                        <li>
+                            <a class="nav-link" href="/accounts/logout">Logout</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

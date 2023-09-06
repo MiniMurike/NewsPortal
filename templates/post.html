@@ -3,14 +3,17 @@
 {% load template_filters %}
 
 {% block title %}
-Post
+{{ post.title }}
 {% endblock title %}
 
 {% block content %}
+
 <h1>Заголовок:</h1> {{ post.title }}<br>
 <h1>Содержание новости:</h1> {{ post.text|censure }}<br>
 <h1>Рейтинг:</h1> {{ post.rating }}<br>
 <h1>Автор:</h1> {{ post.author.user.username }}<br>
-<h1>Категория:</h1> {{ post.type }}<br>
+<h1>Тип:</h1> {{ post.type }} <br>
+<h1>Категории:</h1> {{ category }}<br>
 <h1>Дата публикации:</h1> {{ post.date|date:'d.M.Y' }}<br>
+
 {% endblock content %}
