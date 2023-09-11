@@ -4,42 +4,27 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from AllNews.models import Post
+from main.celery import app
 from subscriptions.models import Subscription
 
 
-@shared_task
-def send_emails(instance):
-    post_categories_qs = instance.post_category.all()
-
-    categories = ''
-    subscribers = []
-
-    for category in post_categories_qs:
-        subscribers += (list(
-            Subscription.objects.filter(
-                category=category
-            ).values_list('user__email', flat=True)))
-
-        categories = f'{category} {categories}'
-
-    # Чистка повторений пользователей, если те указали несколько категорий для рассылки
-    subscribers = list(set(subscribers))
-
-    subject = f'Новая запись в категории {categories}'
+@app.task()
+def send_emails(**args):
+    subject = f'Новая запись в категории {args["categories"]}'
 
     text_content = '\n'.join([
-        f'Заголовок: {instance.title}',
-        f'Содержание: {instance.text[:15]}...\n',
-        f'Подробнее...->: http://localhost:8000{instance.get_absolute_url()}',
+        f'Заголовок: {args["post_title"]}',
+        f'Содержание: {args["post_text"][:15]}...\n',
+        f'Подробнее...->: http://localhost:8000{args["post_url"]}',
     ])
 
     html_content = '<br>'.join([
-        f'Заголовок: {instance.title}',
-        f'Содержание: {instance.text[:15]}...<br>',
-        f'<a href="http://localhost:8000{instance.get_absolute_url()}">Подробнее...-></a>'
+        f'Заголовок: {args["post_title"]}',
+        f'Содержание: {args["post_text"][:15]}...<br>',
+        f'<a href="http://localhost:8000{args["post_url"]}">Подробнее...-></a>'
     ])
 
-    for email in subscribers:
+    for email in args['subscribers']:
         msg = EmailMultiAlternatives(
             subject=subject,
             body=text_content,
@@ -74,11 +59,12 @@ def send_weekly_newsletter():
         }
     )
 
-    msg = EmailMultiAlternatives(
-        subject='Статьи за неделю',
-        body='',
-        from_email=None,
-        to=subscribers_email
-    )
-    msg.attach_alternative(html_content, 'text/html')
-    msg.send()
+    for user in subscribers_email:
+        msg = EmailMultiAlternatives(
+            subject='Статьи за неделю',
+            body='',
+            from_email=None,
+            to=[user]
+        )
+        msg.attach_alternative(html_content, 'text/html')
+        msg.send()
