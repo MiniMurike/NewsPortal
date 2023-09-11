@@ -36,7 +36,7 @@ class Command(BaseCommand):
         scheduler.add_job(
             send_last_posts,
             trigger=CronTrigger(
-                day_of_week='fri', hour='18', minute='00'
+                day_of_week='mon', hour='8', minute='00'
             ),
             # trigger=CronTrigger(
             #     second='00'
