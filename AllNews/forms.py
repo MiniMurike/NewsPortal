@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Post, CATEGORY_CATEGORIES, Category, Author
+from .models import Post, CATEGORY_CATEGORIES, Category, Author, Comment
 
 
 class PostNewsForm(forms.ModelForm):
@@ -33,4 +33,23 @@ class PostNewsForm(forms.ModelForm):
         labels = {
             'title': 'Заголовок',
             'text': 'Содержание',
+        }
+
+
+class CreateCommentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CreateCommentForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Comment
+
+        fields = {
+            'post',
+            'user',
+            'text',
+        }
+
+        widgets = {
+            'post': forms.HiddenInput(),
+            'user': forms.HiddenInput(),
         }

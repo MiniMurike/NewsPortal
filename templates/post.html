@@ -1,12 +1,26 @@
 {% extends 'flatpages/default.html' %}
 
 {% load template_filters %}
+{% load custom_tags %}
 
 {% block title %}
 {{ post.title }}
 {% endblock title %}
 
 {% block content %}
+<style>
+    .button {
+        border: none;
+        background: none;
+        color: gray;
+    }
+    .button:hover {
+        color: blue;
+    }
+    .reacted {
+        color: blue;
+    }
+</style>
 
 <h1>Заголовок:</h1> {{ post.title }}<br>
 <h1>Содержание новости:</h1> {{ post.text|censure }}<br>
@@ -15,5 +29,42 @@
 <h1>Тип:</h1> {{ post.type }} <br>
 <h1>Категории:</h1> {{ category }}<br>
 <h1>Дата публикации:</h1> {{ post.date|date:'d.M.Y' }}<br>
+<h1>Комментарии:</h1>
+
+{% if user.is_authenticated %}
+<div style="border: 1px solid">
+<h2>Оставить комментарий</h2>
+<form method="post" action="" name="comment-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="action" value="create_comment">Отправить</button>
+</form>
+</div>
+{% else %}
+<p>
+    In order to publish a comment you should <a href="/accounts/login">login</a> or <a href="/accounts/signup">signup</a>
+</p>
+{% endif %}
+
+<table cellpadding="15">
+    {% for comment in comments %}
+        <tr style="border-bottom: dotted 1px;">
+            <form method="post" action="" name="reaction">
+                {% csrf_token %}
+                <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                <td><b>{{ comment.user.username }}</b></td>
+                <td>{{ comment.text }}</td>
+                <td>{{ comment.date }}</td>
+                <td>{{ comment.rating }}</td>
+                <td><button class="button {% isReacted comment.id user 'l' %}"
+                            name="action" value="like">Like</button></td>
+                <td><button class="button {% isReacted comment.id user 'd' %}"
+                            name="action" value="dislike" >Dislike</button></td>
+            </form>
+        </tr>
+    {% empty %}
+    <tr><td><p>Здесь как-то пустовато... Будьте первым кто оставит комментарий!</p></td></tr>
+    {% endfor %}
+</table>
 
 {% endblock content %}

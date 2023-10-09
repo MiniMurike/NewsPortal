@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -87,6 +88,10 @@ class Post(models.Model):
     def __str__(self):
         return str(self.title)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # cache.delete(f'post-{self.id}')
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
@@ -107,3 +112,9 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+
+class CommentReaction(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reaction = models.CharField(max_length=1) # 'l(ike)' / 'd(islike)'
